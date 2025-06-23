@@ -1,20 +1,25 @@
-🧬 Genome Annotation for GWAS — Simple Guide
+# 🧬 Genome Annotation for GWAS — Simple Guide
 
 This little guide will walk you through how to download your genomes 🗂️ and annotate them 📝 to prepare for a GWAS study — step by step!
 I wrote this so that even if you're not a hardcore bioinformatician, you can follow along easily. 🚀
 
-1️⃣ Download your genomes from NCBI 📥
+---
+
+## 1️⃣ Download your genomes from NCBI 📥
 👉 First, prepare a list of the accession numbers of your genomes (e.g. GCF_XXX...).
 You can use this handy tool: ncbi-genome-download
-No worries — it's simple!
 
 💻 If you are using IBL server, you don’t need to install it — just run:
 
+   ```bash
 micromamba activate ncbi
+   ```
 
 To download your genomes:
 
+   ```bash
 ncbi-genome-download -F 'cds-fasta' -A <your_accession_list.txt> --flat-output -o ./your_output_folder -p 4 bacteria
+   ```
 
 📌 Key options:
 
