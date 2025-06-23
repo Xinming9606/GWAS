@@ -7,7 +7,8 @@ I wrote this so that even if you're not a hardcore bioinformatician, you can fol
 
 ## 1️⃣ Download your genomes from NCBI 📥
 👉 First, prepare a list of the accession numbers of your genomes (e.g. GCF_XXX...).
-You can use this handy tool: ncbi-genome-download
+
+You can use this handy tool: [ncbi-genome-download](https://github.com/kblin/ncbi-genome-download)
 
 💻 If you are using IBL server, you don’t need to install it — just run:
 
@@ -24,77 +25,53 @@ ncbi-genome-download -F 'cds-fasta' -A <your_accession_list.txt> --flat-output -
 📌 Key options:
 
 -F 'cds-fasta' — download only the coding sequences (CDS)
-
 -A <your list> — list of genome accession numbers
-
 --flat-output — all files go into one folder (easier!)
-
 -o — where to save the downloaded files
-
 -p 4 — download in parallel (use more CPUs = faster)
 
-1. download your genomes from NCBI
+## 2️⃣ Annotate the genomes using Prokka ✏️
 
-Prepare the list of the accession numbers of your genomes use https://github.com/kblin/ncbi-genome-download
+if you are using IBL server, you do not need to install prokka, use 'micromamba activate prokka' to activate the environment
+otherwise install [prokka](https://github.com/tseemann/prokka) in your own environment
 
-if you are using IBL server, you do not need to install ncbi-genome-download env again. simply us micromamba activate ncbi
-
-```shell
-ncbi-genome-download  -F 'cds-fasta' -A --flat-output -o -p bacteria
-
-
- -F FILE_FORMATS,
-  -A ASSEMBLY_ACCESSIONS, --assembly-accessions ASSEMBLY_ACCESSIONS
-                        Only download sequences matching the provided NCBI assembly accession(s). A comma-separated list of accessions is possible, 
-as well as a path to a filename containing one accession per line.
---flat-output         Dump all files right into the output folder without creating any subfolders.
--o OUTPUT, --output-folder OUTPUT
-                        Create output hierarchy in specified folder
--p N, --parallel N    Run N downloads in parallel (default: 1)
-
-2. prokka to annotate the genomes 
-
-if you are using IBL server, you do not need to install prokka, use micromamba activate prokka to activate the environment
-otherwise install prokka in your own environment
-
-```shell
+   ```bash
 conda create -n prokka_env -c conda-forge -c bioconda prokka
 #to install prokka
-
 mamba install -y perl-app-cpanminus
 cpanm Bio::SearchIO::hmmer --force
 #to install hmmer to let prokka running
-```
+   ```
 
-```shell
-gzip -d *.gz
-#to decompress all cds.fasta files in your folder
-```
 
-```shell
-cp -r ~/Bacillus/* ~/Bacillus/backup
-#before change all sequence names, make a copy of originial files, in case you need it in the future
-```
+Before annotation — prepare the files 📂
 
-```shell
+   ```bash
+gzip -d *.gz #to decompress all cds.fasta files in your folder
+cp -r ~/Bacillus/* ~/Bacillus/backup #before change all sequence names, make a copy of originial files, in case you need it in the future
 rename -v 's/_cds_from_genomic//' *.fna
 rename -v 's/ASM//' *.fnamicr
-rename -v 's/GCF_0/GCF_/' *.fna
-#rename all the fna files to avoid error in prokka
-```
+rename -v 's/GCF_0/GCF_/' *.fna #rename all the fna files to avoid error in prokka
+   ```
 
-```shell
-GCF_001723585.1.fna
-prokka --kingdom Bacteria --outdir ~/Bacillus/trial/GCF_001723585 --genus Bacillus --locustag GCF_001723585 ~/Bacillus/GCF_001723585.1.fna --compliant --centre XXX --force
-#For single sequence annotation, this works
-```
+Run Prokka 🚀
+👉 To annotate one genome:
 
-```shell
-for file in *.fna; do tag=${file%.fna}; prokka --kingdom Bacteria --outdir ~/Bacillus/"$tag" --genus Bacillus --locustag "$tag" --compliant --force --centre XXX ~/Bacillus/"$file"; done
+   ```bash
+prokka --kingdom Bacteria --outdir ~/Bacillus/trial/GCF_001723585 \
+       --genus Bacillus --locustag GCF_001723585 \
+       ~/Bacillus/GCF_001723585.1.fna \
+       --compliant --centre XXX --force
+   ```
+👉 To annotate all genomes in a folder (bulk annotation):
 
-for file in *.fna; do tag=${file%.fna}; prokka --kingdom Bacteria --outdir ~/prokka/"$tag" --genus Bacillus --locustag "$tag" --compliant --force --centre XXX ~/Bacillaceae_library/"$file"; done
-#For bulk annotation, this workscd 
-```
+   ```bash
+for file in *.fna; do 
+  tag=${file%.fna}; 
+  prokka --kingdom Bacteria --outdir ~/Bacillus/"$tag" \
+         --genus Bacillus --locustag "$tag" \
+         --compliant --force --centre XXX ~/Bacillus/"$file"; 
+   ```
 
 ```shell
 tmux new -s
